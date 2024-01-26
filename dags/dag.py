@@ -64,7 +64,6 @@ with models.DAG(
     schedule_interval=None,
     default_args=default_args,
     max_active_runs=1,
-    on_failure_callback=task_fail_slack_alert,
 ) as dag:
     
     def execute_ad_params():
