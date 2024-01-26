@@ -41,7 +41,8 @@ utility = (
     "available."
 )
 
-def task_fail_slack_alert(context):
+
+"""def task_fail_slack_alert(context):
     slack_msg = slack_msg_body(
         context,
         riskiness=riskiness,
@@ -54,7 +55,7 @@ def task_fail_slack_alert(context):
         username="airflow",
         dag=dag,
     )
-    return failed_alert.execute(context=context)
+    return failed_alert.execute(context=context)"""
 
 
 with models.DAG(
