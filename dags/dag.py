@@ -3,8 +3,9 @@ import requests
 from datetime import datetime
 
 from airflow import models
-#from airflow.contrib.operators.slack_webhook_operator import SlackWebhookOperator
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
+from airflow.contrib.operators.slack_webhook_operator import SlackWebhookOperator
+#from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.operators import python_operator
 
 
