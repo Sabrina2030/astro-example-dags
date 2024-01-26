@@ -23,5 +23,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
     - name: Deploy to Astro
       uses: astronomer/deploy-action@v0.2
