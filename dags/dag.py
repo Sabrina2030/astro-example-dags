@@ -286,6 +286,9 @@ def load_departments():
     # Excluir columnas con el tipo ObjectId
     departments_df = departments_df.select_dtypes(exclude=['object'])
 
+    # Ajustar el nombre de la columna según el esquema de BigQuery
+    departments_df = departments_df.rename(columns={"name": "department_name"})
+
     departments_rows = len(departments_df)
     print(f"Se obtuvo {departments_rows} Filas")
 
@@ -313,6 +316,7 @@ def load_departments():
         )
     else:
         print('Alerta: no hay registros en la tabla departments')
+
 
 with DAG(
     dag_id="load_project",
