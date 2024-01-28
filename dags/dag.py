@@ -45,8 +45,8 @@ def load_products():
     print(f" Se obtuvo  {products_rows}  Filas")
     products_rows=len(products_df)
     if products_rows>0 :
-        client = bigquery.Client(project='premium-guide-410714')
-        table_id =  "premium-guide-410714.dep_raw.products"
+        client = bigquery.Client(project='atomic-lens-395620')
+        table_id =  "atomic-lens-395620.dep_raw.products"
         job_config = bigquery.LoadJobConfig(
             schema=[
                 bigquery.SchemaField("_id", bigquery.enums.SqlTypeNames.STRING),
@@ -99,8 +99,8 @@ def load_order_items():
     print(f"Se obtuvo {order_items_rows} Filas")
 
     if order_items_rows > 0:
-        client = bigquery.Client(project='premium-guide-410714')
-        table_id = "premium-guide-410714.dep_raw.order_items"
+        client = bigquery.Client(project='atomic-lens-395620')
+        table_id = "atomic-lens-395620.dep_raw.order_items"
         job_config = bigquery.LoadJobConfig(
             schema=[
                 bigquery.SchemaField("_id", bigquery.enums.SqlTypeNames.STRING),
@@ -152,8 +152,8 @@ def load_orders():
     print(f"Se obtuvo {orders_rows} Filas")
 
     if orders_rows > 0:
-        client = bigquery.Client(project='premium-guide-410714')
-        table_id = "premium-guide-410714.dep_raw.orders"
+        client = bigquery.Client(project='atomic-lens-395620')
+        table_id = "atomic-lens-395620.dep_raw.orders"
         job_config = bigquery.LoadJobConfig(
             schema=[
                 bigquery.SchemaField("_id", bigquery.enums.SqlTypeNames.STRING),
@@ -195,8 +195,8 @@ def load_customers():
     print(f"Se obtuvo {customers_rows} Filas")
 
     if customers_rows > 0:
-        client = bigquery.Client(project='premium-guide-410714')
-        table_id = "premium-guide-410714.dep_raw.customers"
+        client = bigquery.Client(project='atomic-lens-395620')
+        table_id = "atomic-lens-395620.dep_raw.customers"
         job_config = bigquery.LoadJobConfig(
             schema=[
                 bigquery.SchemaField("_id", bigquery.enums.SqlTypeNames.STRING),
@@ -241,8 +241,8 @@ def load_categories():
     print(f"Se obtuvo {categories_rows} Filas")
 
     if categories_rows > 0:
-        client = bigquery.Client(project='premium-guide-410714')
-        table_id = "premium-guide-410714.dep_raw.categories"
+        client = bigquery.Client(project='atomic-lens-395620')
+        table_id = "atomic-lens-395620.dep_raw.categories"
         job_config = bigquery.LoadJobConfig(
             schema=[
                 bigquery.SchemaField("category_id", bigquery.enums.SqlTypeNames.INTEGER),
