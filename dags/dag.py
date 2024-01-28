@@ -283,18 +283,12 @@ def load_departments():
     departments_df = pd.DataFrame(departments)
     client.close()
 
-    # Excluir columnas con el tipo ObjectId
-    departments_df = departments_df.select_dtypes(exclude=['object'])
-
-    # Ajustar el nombre de la columna según el esquema de BigQuery
-    departments_df = departments_df.rename(columns={"name": "department_name"})
-
     departments_rows = len(departments_df)
     print(f"Se obtuvo {departments_rows} Filas")
 
     if departments_rows > 0:
-        client = bigquery.Client(project='premium-guide-410714')
-        table_id = "premium-guide-410714.dep_raw.departments"
+        client = bigquery.Client(project='atomic-lens-395620')
+        table_id = "atomic-lens-395620.dep_raw.departments"
         job_config = bigquery.LoadJobConfig(
             schema=[
                 bigquery.SchemaField("department_id", bigquery.enums.SqlTypeNames.INTEGER),
