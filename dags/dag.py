@@ -273,14 +273,18 @@ def load_categories():
     else:
         print('Alerta: no hay registros en la tabla categories')
 
+
 def load_departments():
-    print(f"INICIO LOAD DEPARTMENTS")
-    dbconnect = get_connect_mongo()
-    dbname = dbconnect["retail_db"]
+    print("INICIO LOAD DEPARTMENTS")
+    client = get_connect_mongo()
+    dbname = client["retail_db"]
     collection_name = dbname["departments"]
     departments = collection_name.find({})
-    departments_df = DataFrame(departments)
-    dbconnect.close()
+    departments_df = pd.DataFrame(departments)
+    client.close()
+
+    # Excluir columnas con el tipo ObjectId
+    departments_df = departments_df.select_dtypes(exclude=['object'])
 
     departments_rows = len(departments_df)
     print(f"Se obtuvo {departments_rows} Filas")
@@ -299,9 +303,9 @@ def load_departments():
         job = client.load_table_from_dataframe(
             departments_df, table_id, job_config=job_config
         )
-        job.result()  # Wait for the job to complete.
+        job.result()  # Esperar a que se complete el trabajo.
 
-        table = client.get_table(table_id)  # Make an API request.
+        table = client.get_table(table_id)  # Hacer una solicitud a la API.
         print(
             "Loaded {} rows and {} columns to {}".format(
                 table.num_rows, len(table.schema), table_id
@@ -309,8 +313,6 @@ def load_departments():
         )
     else:
         print('Alerta: no hay registros en la tabla departments')
-
-
 
 with DAG(
     dag_id="load_project",
