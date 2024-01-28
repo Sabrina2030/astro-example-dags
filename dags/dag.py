@@ -229,12 +229,19 @@ def load_customers():
 
 
 def load_categories():
-    print(f"INICIO LOAD CATEGORIES")
+    print("INICIO LOAD CATEGORIES")
+    
     dbconnect = get_connect_mongo()
     dbname = dbconnect["retail_db"]
     collection_name = dbname["categories"]
+    
+    # Convertir ObjectId a cadena al obtener los datos de MongoDB
     categories = collection_name.find({})
-    categories_df = DataFrame(categories)
+    categories_list = [record for record in categories]
+    for record in categories_list:
+        record['_id'] = str(record['_id'])
+    
+    categories_df = DataFrame(categories_list)
     dbconnect.close()
 
     categories_rows = len(categories_df)
