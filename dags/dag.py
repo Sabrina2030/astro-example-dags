@@ -275,7 +275,7 @@ def load_categories():
         print('Alerta: no hay registros en la tabla categories')
 
 
-def load_departments():
+"""def load_departments():
     print("INICIO LOAD DEPARTMENTS")
     client = get_connect_mongo()
     dbname = client["retail_db"]
@@ -315,7 +315,7 @@ def load_departments():
             )
         )
     else:
-        print('Alerta: no hay registros en la tabla departments')
+        print('Alerta: no hay registros en la tabla departments')"""
 
 
 def load_master_order():
@@ -438,7 +438,7 @@ def load_master_order():
      order_date,c.category_name ,d.department_name 
      , sum (a.order_item_subtotal) order_item_subtotal
      , sum (a.order_item_quantity) order_item_quantity
-    FROM `premium-guide-410714.dep_raw.master_order` a
+    FROM `atomic-lens-395620.dep_raw.master_order` a
     inner join  `atomic-lens-395620.dep_raw.products` b on
     a.order_item_product_id=b.product_id
     inner join `atomic-lens-395620.dep_raw.categories` c on
