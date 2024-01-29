@@ -282,6 +282,8 @@ def load_departments():
     departments = collection_name.find({})
     departments_df = pd.DataFrame(departments)
     client.close()
+    
+    departments_df['department_id'] = departments_df['department_id'].astype(int)
 
     departments_rows = len(departments_df)
     print(f"Se obtuvo {departments_rows} Filas")
