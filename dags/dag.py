@@ -289,6 +289,8 @@ def load_departments():
     departments_rows = len(departments_df)
     print(f"Se obtuvo {departments_rows} Filas")
 
+    print(departments_df.dtypes)
+
     if departments_rows > 0:
         client = bigquery.Client(project='atomic-lens-395620')
         table_id = "atomic-lens-395620.dep_raw.departments"
@@ -313,6 +315,140 @@ def load_departments():
         )
     else:
         print('Alerta: no hay registros en la tabla departments')
+
+
+def load_master_order():
+    client = bigquery.Client()
+    sql = """
+        SELECT *
+        FROM `atomic-lens-395620.dep_raw.order_items`
+    """
+    m_order_items_df = client.query(sql).to_dataframe()
+
+    client = bigquery.Client()
+    sql_2 = """
+        SELECT *
+        FROM `atomic-lens-395620.dep_raw.orders`
+    """
+    m_orders_df = client.query(sql_2).to_dataframe()
+
+    df_join = m_orders_df.merge(m_order_items_df, left_on='order_id', right_on='order_item_order_id', how='inner')
+
+    df_master = df_join[['order_id', 'order_date_x', 'order_customer_id',
+                        'order_status', 'order_item_id',
+                        'order_item_order_id', 'order_item_product_id', 'order_item_quantity',
+                        'order_item_subtotal', 'order_item_product_price']]
+
+    df_master = df_master.rename(columns={"order_date_x": "order_date"})
+
+    def get_group_status(text):
+        text = str(text)
+        if text == 'CLOSED':
+            d = 'END'
+        elif text == 'COMPLETE':
+            d = 'END'
+        else:
+            d = 'TRANSIT'
+        return d
+
+    df_master['order_status_group'] = df_master['order_status'].map(get_group_status)
+
+    df_master['order_date'] = df_master['order_date'].astype(str)
+    df_master['order_date'] = pd.to_datetime(df_master['order_date'], format='%Y-%m-%d').dt.date
+
+    df_master_rows = len(df_master)
+    if df_master_rows > 0:
+        client = bigquery.Client()
+
+        table_id = "atomic-lens-395620.dep_raw.master_order"
+        job_config = bigquery.LoadJobConfig(
+            schema=[
+                bigquery.SchemaField("order_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_date", bigquery.enums.SqlTypeNames.DATE),
+                bigquery.SchemaField("order_customer_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_status", bigquery.enums.SqlTypeNames.STRING),
+                bigquery.SchemaField("order_item_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_order_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_product_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_quantity", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_subtotal", bigquery.enums.SqlTypeNames.FLOAT),
+                bigquery.SchemaField("order_item_product_price", bigquery.enums.SqlTypeNames.FLOAT),
+                bigquery.SchemaField("order_status_group", bigquery.enums.SqlTypeNames.STRING),
+            ],
+            write_disposition="WRITE_TRUNCATE",
+        )
+
+        job = client.load_table_from_dataframe(
+            df_master, table_id, job_config=job_config
+        )
+        job.result()  # Wait for the job to complete.
+
+        table = client.get_table(table_id)  # Make an API request.
+        print(
+            "Loaded {} rows and {} columns to {}".format(
+                table.num_rows, len(table.schema), table_id
+            )
+        )
+    else:
+        print('Alerta: no hay registros en la tabla order_items')
+
+    exchange_rate = 3.736
+    df_master['order_item_subtotal_mn'] = df_master['order_item_subtotal'] * exchange_rate
+
+    if df_master_rows > 0:
+        # Configure BigQuery job
+        table_id = "atomic-lens-395620.dep_raw.master_order"
+        job_config = bigquery.LoadJobConfig(
+            schema=[
+                bigquery.SchemaField("order_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_date", bigquery.enums.SqlTypeNames.DATE),
+                bigquery.SchemaField("order_customer_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_status", bigquery.enums.SqlTypeNames.STRING),
+                bigquery.SchemaField("order_item_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_order_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_product_id", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_quantity", bigquery.enums.SqlTypeNames.INTEGER),
+                bigquery.SchemaField("order_item_subtotal", bigquery.enums.SqlTypeNames.FLOAT),
+                bigquery.SchemaField("order_item_product_price", bigquery.enums.SqlTypeNames.FLOAT),
+                bigquery.SchemaField("order_status_group", bigquery.enums.SqlTypeNames.STRING),
+                bigquery.SchemaField("order_item_subtotal_mn", bigquery.enums.SqlTypeNames.FLOAT),
+            ],
+            write_disposition="WRITE_TRUNCATE",
+        )
+
+        # Load data into BigQuery
+        job = client.load_table_from_dataframe(df_master, table_id, job_config=job_config)
+        job.result()  # Wait for the job to complete.
+
+        # Print job result
+        table = client.get_table(table_id)
+        print(
+            "Loaded {} rows and {} columns to {}".format(
+                table.num_rows, len(table.schema), table_id
+            )
+        )
+    else:
+        print('Alert: No hay registros en la tabla order_items')
+
+    # Load BI Table
+    query_string = """
+    create or replace table `atomic-lens-395620.dep_raw.bi_orders` as
+    SELECT 
+     order_date,c.category_name ,d.department_name 
+     , sum (a.order_item_subtotal) order_item_subtotal
+     , sum (a.order_item_quantity) order_item_quantity
+    FROM `premium-guide-410714.dep_raw.master_order` a
+    inner join  `atomic-lens-395620.dep_raw.products` b on
+    a.order_item_product_id=b.product_id
+    inner join `atomic-lens-395620.dep_raw.categories` c on
+    b.product_category_id=c.category_id
+    inner join `atomic-lens-395620.dep_raw.departments` d on
+    c.category_department_id=d.department_id
+    group by order_date,c.category_name ,d.department_name
+    """
+    query_job = client.query(query_string)
+    rows = list(query_job.result())
+    print(rows)
 
 
 with DAG(
@@ -360,6 +496,12 @@ with DAG(
     step_load_departments = PythonOperator(
         task_id='load_departments_id',
         python_callable=load_departments,
+        dag=dag
+    )
+
+    step_load_master_order = PythonOperator(
+        task_id='load_master_order_id',
+        python_callable=load_master_order,
         dag=dag
     )
 
