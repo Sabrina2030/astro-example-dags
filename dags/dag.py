@@ -9,6 +9,7 @@ from pymongo import MongoClient
 from pandas import DataFrame
 from google.cloud import bigquery
 import pandas as pd
+import numpy as np
 
 
 default_args = {
@@ -283,7 +284,7 @@ def load_departments():
     departments_df = pd.DataFrame(departments)
     client.close()
     
-    departments_df['department_id'] = departments_df['department_id'].astype(int)
+    departments_df['department_id'] = departments_df['department_id'].apply(lambda x: np.int64(x))
 
     departments_rows = len(departments_df)
     print(f"Se obtuvo {departments_rows} Filas")
