@@ -290,6 +290,7 @@ def load_departments():
     print(f"Se obtuvo {departments_rows} Filas")
 
     print(departments_df.dtypes)
+    print(departments_df.head())
 
     if departments_rows > 0:
         client = bigquery.Client(project='atomic-lens-395620')
