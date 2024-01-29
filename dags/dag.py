@@ -494,12 +494,6 @@ with DAG(
         dag=dag
     )
 
-    step_load_departments = PythonOperator(
-        task_id='load_departments_id',
-        python_callable=load_departments,
-        dag=dag
-    )
-
     step_load_master_order = PythonOperator(
         task_id='load_master_order_id',
         python_callable=load_master_order,
@@ -513,4 +507,4 @@ with DAG(
     )
 
     # Set task dependencies
-    step_start >> [step_load_products, step_load_order_items, step_load_orders, step_load_customers, step_load_categories, step_load_departments] >> step_load_master_order >> step_end
+    step_start >> [step_load_products, step_load_order_items, step_load_orders, step_load_customers, step_load_categories] >> step_load_master_order >> step_end
