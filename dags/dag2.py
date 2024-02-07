@@ -77,9 +77,9 @@ with models.DAG(
     for table in ["stg_fact_day_category_main_xiti", "ods_leads_daily"]:
         check_table_partition_exists = PythonSensor(
             task_id="sensor_partition_exists_{}".format(table),
-            poke_interval=300
+            poke_interval=300,
             mode="reschedule",
-            timeout=600
+            timeout=600,
             python_callable=check_partition,
             op_kwargs={"table": table},
         )
