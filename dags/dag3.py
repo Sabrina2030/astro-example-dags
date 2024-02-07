@@ -6,7 +6,7 @@ import requests
 
 from airflow import models
 from airflow.sensors.python import PythonSensor
-from airflow.contrib.operators.ssh_operator import SSHOperator
+from airflow.providers.ssh.operators.ssh import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
 
 
