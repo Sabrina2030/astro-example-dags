@@ -50,10 +50,13 @@ with models.DAG(
 
         try:
             content_json = test.json()
-            print(content_json)
             status_table = content_json.get("body", {}).get("status_table")
             print(status_table)
-            return status_table == "OK"
+            if status_table == "OK":
+                return True
+            else:
+                print('estoy aca')
+                return False
         except json.decoder.JSONDecodeError:
             return False
 
