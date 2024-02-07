@@ -43,7 +43,7 @@ with models.DAG(
     max_active_runs=1,
 ) as dag:
     
-    def check_partition(**kwargs):
+    """def check_partition(**kwargs):
         test = requests.get(f"{SERVICE_SENSOR_URL}/{kwargs['table']}")
         #content = json.loads(test.content)
         #status_table = content["body"]["status_table"]
@@ -55,7 +55,29 @@ with models.DAG(
             return True
         else:
             print('estoy aca')
+            return False"""
+    
+    def check_partition(**kwargs):
+        test = requests.get(f"{SERVICE_SENSOR_URL}/{kwargs['table']}")
+
+        try:
+            content_json = test.json()
+            status_table = content_json.get("body", {}).get("status_table")
+            print(status_table)
+            if status_table == "OK":
+                return True
+            elif status_table == "FAILED":
+                msg = content_json.get("body", {}).get("msg")
+                if "doesn't exist" in msg:
+                    print(f"Data doesn't exist: {msg}")
+                    return False
+                else:
+                    raise ValueError(f"Unexpected status message: {msg}")
+            else:
+                raise ValueError(f"Unexpected status: {status_table}")
+        except json.decoder.JSONDecodeError:
             return False
+
 
     # Process data block
     def call_job(**kwargs):
