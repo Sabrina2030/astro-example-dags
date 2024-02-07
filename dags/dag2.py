@@ -89,6 +89,12 @@ with models.DAG(
         data = requests.get(SERVICE_URL + "/rundeck/call")
         logging.info("Done")
         return data.json()
+    
+    def call_job(start_date, end_date, **kwargs):
+        logging.info("Calling rundeck job")
+        data = requests.get(SERVICE_URL + "/rundeck/call", params={"start_date": start_date, "end_date": end_date})
+        logging.info("Done")
+        return data.json()
 
     start_job = bash_operator.BashOperator(
         task_id="Start", bash_command="echo Success."
@@ -100,6 +106,7 @@ with models.DAG(
         task_id="call_rundeck_Test_Content_Job_KPIS_operacionales_Crontab",
         provide_context=True,
         python_callable=call_job,
+        op_kwargs={"start_date": "{{ execution_date.strftime('%Y-%m-%d') }}", "end_date": "{{ execution_date.strftime('%Y-%m-%d') }}"},
     )
 
     for table in ["stg_fact_day_category_main_xiti", "ods_leads_daily"]:
