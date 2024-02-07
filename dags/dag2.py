@@ -48,16 +48,13 @@ with models.DAG(
         #content = json.loads(test.content)
         #status_table = content["body"]["status_table"]
 
-        try:
-            content_json = test.json()
-            status_table = content_json.get("body", {}).get("status_table")
-            print(status_table)
-            if status_table == "OK":
-                return True
-            else:
-                print('estoy aca')
-                return False
-        except json.decoder.JSONDecodeError:
+        content_json = test.json()
+        status_table = content_json.get("body", {}).get("status_table")
+        print(status_table)
+        if status_table == "OK":
+            return True
+        else:
+            print('estoy aca')
             return False
 
     # Process data block
