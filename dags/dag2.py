@@ -8,7 +8,6 @@ import pandas as pd
 import requests
 
 from airflow import models
-from airflow.models.variable import Variable
 from airflow.operators import bash_operator, python_operator
 from airflow.sensors.python import PythonSensor
 
@@ -20,7 +19,6 @@ default_args = {
     "start_date": datetime(2022, 3, 15),
 }
 
-sensor_config_gbq = json.loads(Variable.get("SENSOR_CONFIG_GBQ"))
 SERVICE_SENSOR_URL = "https://py-scp-pipelines-healthchek-nasdocrtnq-ue.a.run.app"
 SERVICE_URL = "https://py-scp-kpi-operacionales-nasdocrtnq-ue.a.run.app"
 
@@ -79,9 +77,9 @@ with models.DAG(
     for table in ["stg_fact_day_category_main_xiti", "ods_leads_daily"]:
         check_table_partition_exists = PythonSensor(
             task_id="sensor_partition_exists_{}".format(table),
-            poke_interval=sensor_config_gbq["poke_interval"],
+            poke_interval=300
             mode="reschedule",
-            timeout=sensor_config_gbq["timeout"],
+            timeout=600
             python_callable=check_partition,
             op_kwargs={"table": table},
         )
