@@ -25,6 +25,19 @@ SERVICE_URL = "https://py-scp-kpi-operacionales-nasdocrtnq-ue.a.run.app"
 # Define a DAG (directed acyclic graph) of tasks.
 # Any task you create within the context manager is automatically added to the
 # DAG object.
+# Calculate the date
+def get_date():
+    start_date = "{{ dag_run.conf['start_date'] if dag_run.conf and 'start_date' in dag_run.conf else False}}"
+    end_date = "{{ dag_run.conf['end_date'] if dag_run.conf and 'end_date' in dag_run.conf else False}}"
+    if start_date and end_date:
+        date = {"start_date": start_date, "end_date": end_date}
+    else:
+        execution_date = "{{ dag_run.logical_date }}"
+        execution_date = execution_date - timedelta(days=1)
+        execution_date = execution_date.date().strftime('%Y-%m-%d')
+        date = {"start_date": execution_date, "end_date": execution_date}
+        print(date)
+    return date
 
 
 with models.DAG(
@@ -43,22 +56,11 @@ with models.DAG(
     max_active_runs=1,
 ) as dag:
     
-    """def check_partition(**kwargs):
-        test = requests.get(f"{SERVICE_SENSOR_URL}/{kwargs['table']}")
-        #content = json.loads(test.content)
-        #status_table = content["body"]["status_table"]
-
-        content_json = test.json()
-        status_table = content_json.get("body", {}).get("status_table")
-        print(status_table)
-        if status_table == "OK":
-            return True
-        else:
-            print('estoy aca')
-            return False"""
-    
     def check_partition(**kwargs):
-        test = requests.get(f"{SERVICE_SENSOR_URL}/{kwargs['table']}")
+        test = requests.post(
+            f"{SERVICE_SENSOR_URL}/{kwargs['table']}",
+            json=kwargs['dates']
+        )
 
         try:
             content_json = test.json()
