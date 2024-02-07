@@ -29,8 +29,8 @@ SERVICE_URL = "https://py-scp-kpi-operacionales-nasdocrtnq-ue.a.run.app"
 def get_date():
     #start_date = "{{ dag_run.conf['start_date'] if dag_run.conf and 'start_date' in dag_run.conf else False}}"
     #end_date = "{{ dag_run.conf['end_date'] if dag_run.conf and 'end_date' in dag_run.conf else False}}"
-    start_date = "2023-11-04"
-    end_date = "2023-11-04"
+    start_date = "2023-11-01"
+    end_date = "2023-11-30"
     if start_date and end_date:
         date = {"start_date": start_date, "end_date": end_date}
     else:
